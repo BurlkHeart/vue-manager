@@ -34,23 +34,14 @@
           <el-button type="danger" icon="el-icon-delete">删除</el-button>
         </template>
       </zk-table>
-      <!--分页组件-->
-      <el-pagination
-        @size-change="handleSizeChangeCate"
-        @current-change="handleCurrentChangeCate"
-        :current-page="queryInfo.pagenum"
-        :page-sizes="[5, 10, 15]"
-        :page-size="queryInfo.pagesize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="totalCate">
-      </el-pagination>
     </el-card>
+
     <!--添加分类的对话框-->
     <el-dialog
       title="添加分类"
       :visible.sync="addCateDialogVisible"
       width="50%"
-      @close="cateDialogClosed">
+    @close="cateDialogClosed">
       <!--表单内容组件-->
       <el-form :model="addCateForm" :rules="addCateRules" ref="addCateRef" label-width="100px">
         <el-form-item label="分类名称: " prop="cat_name">
@@ -66,7 +57,7 @@
             :options="options"
             :props="CascaderProps"
             @change="handleChange"
-            clearable></el-cascader>
+          clearable></el-cascader>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -74,6 +65,17 @@
     <el-button type="primary" @click="addCate">确 定</el-button>
   </span>
     </el-dialog>
+
+    <!-- 分页区域--拷贝组件的完整功能的分页 -->
+    <el-pagination
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="queryInfo.pagenum"
+      :page-sizes="[3, 5, 10, 15]"
+      :page-size="queryInfo.pagesize"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total"
+    ></el-pagination>
   </div>
 </template>
 
@@ -82,7 +84,6 @@
     name: 'Cate',
     data() {
       return {
-        totalCate: 0,
         // 商品分类的数据列表
         cateList: [],
         // 分类的参数对象
@@ -140,7 +141,8 @@
           checkStrictly: true // 禁止父子级联互相关联
         },
         // 级联选择器的数据源
-        options:[]
+        options:[],
+        total:0
 
       }
     },
@@ -205,29 +207,25 @@
         if (res.meta.status !== 200) return this.$message.error('获取失败')
         // 成功
         this.cateList = res.data.result
-        this.totalCate = res.data.total
+        this.total = res.data.total
       },
-      // 监听pagesize改变事件
-      handleSizeChangeCate (newSize) {
-        this.queryInfo.queryInfo = newSize
-        // 重新获取数据
-        this.getCateList()
+      // 监听pagesize变化
+      handleSizeChange(newsize) {
+        // 赋值给queryInfo中的参数
+        this.queryInfo.pagesize = newsize
+        this.getCateList() // 刷新数据
       },
-      // 监听page改变事件
-      handleCurrentChangeCate (newPage) {
-        this.queryInfo.pagenum = newPage
-        // 重新获取数据
-        this.getCateList()
+      // 监听pagenum的改变
+      handleCurrentChange(newnum) {
+        this.queryInfo.pagenum = newnum
+        this.getCateList() // 刷新数据
       }
     }
   }
 </script>
 
 <style scoped>
-  .el-button{
-    margin-bottom: 10px;
-  }
-  .el-pagination{
-    margin-top: 20px;
-  }
+.el-button{
+  margin-bottom: 10px;
+}
 </style>
